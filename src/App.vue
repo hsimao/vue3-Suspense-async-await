@@ -1,14 +1,36 @@
 <template>
-  <img src="./logo.png">
-  <h1>Hello Vue 3!</h1>
-  <button @click="inc">Clicked {{ count }} times.</button>
+  <div>
+    <div v-if="error">Error loading component{{ error }}</div>
+    <Suspense>
+      <template #default>
+        <User />
+      </template>
+      <template #fallback>
+        <div>Loading...</div>
+      </template>
+    </Suspense>
+
+    <h1>Hello Vue 3!</h1>
+    <button @click="inc">Clicked {{ count }} times.</button>
+  </div>
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, onErrorCaptured } from 'vue'
+import User from './User.vue'
 
 export default {
+  components: {
+    User
+  },
   setup() {
+    // 監聽異步 error
+    const error = ref(null)
+    onErrorCaptured(e => {
+      error.value = e
+      return true
+    })
+
     const count = ref(0)
     const inc = () => {
       count.value++
@@ -16,7 +38,8 @@ export default {
 
     return {
       count,
-      inc
+      inc,
+      error
     }
   }
 }
